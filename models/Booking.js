@@ -14,7 +14,7 @@ const bookingSchema = new mongoose.Schema({
     required: true,
   },
   jam: {
-    type: String, // ← TAMBAHKAN INI
+    type: String, 
     required: true,
   },
   catatan: {

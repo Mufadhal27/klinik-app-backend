@@ -1,4 +1,3 @@
-// backend/seeder.js
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const Service = require("./models/Service"); 

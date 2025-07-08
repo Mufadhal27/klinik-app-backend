@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
 // Tambah booking baru
 router.post("/", async (req, res) => {
   try {
-    const booking = new Booking(req.body); // ← cukup ini, jam akan otomatis ikut
+    const booking = new Booking(req.body); 
     await booking.save();
     res.status(201).json({ message: "Booking berhasil!" });
   } catch (error) {
