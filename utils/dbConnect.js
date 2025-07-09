@@ -6,23 +6,32 @@ if (!MONGO_URI) {
   throw new Error("❌ MONGO_URI belum disetel di environment");
 }
 
-let isConnected = false;
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
 async function dbConnect() {
-  if (isConnected) return;
+  if (cached.conn) {
+    return cached.conn;
+  }
 
-  try {
-    const db = await mongoose.connect(MONGO_URI, {
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGO_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-
-    isConnected = db.connections[0].readyState === 1;
-    console.log("✅ MongoDB connected (Vercel)");
-  } catch (error) {
-    console.error("❌ MongoDB connection error:", error);
-    throw error;
   }
+
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    throw e;
+  }
+
+  return cached.conn;
 }
 
 module.exports = dbConnect;

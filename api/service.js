@@ -4,9 +4,15 @@ const Service = require("../models/Service");
 module.exports = async function handler(req, res) {
   await dbConnect();
 
-  if (req.method === "GET") {
-    const services = await Service.find();
-    return res.status(200).json(services);
+  const method = req.method;
+
+  if (method === "GET") {
+    try {
+      const services = await Service.find();
+      return res.status(200).json(services);
+    } catch (err) {
+      return res.status(500).json({ error: "Gagal mengambil layanan" });
+    }
   }
 
   if (method === "POST") {
