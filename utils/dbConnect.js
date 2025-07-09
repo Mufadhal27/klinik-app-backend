@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
-const MONGO_URI = process.env.MONGO_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
 
-if (!MONGO_URI) {
-  throw new Error("❌ MONGO_URI belum disetel di environment");
+if (!MONGODB_URI) {
+  throw new Error("❌ MONGODB_URI belum disetel di environment");
 }
 
 let cached = global.mongoose;
@@ -18,7 +18,7 @@ async function dbConnect() {
   }
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGO_URI, {
+    cached.promise = mongoose.connect(MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

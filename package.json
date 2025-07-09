@@ -10,5 +10,8 @@
     "@google/generative-ai": "^0.7.0",
     "dotenv": "^17.1.0",
     "mongoose": "^7.6.0"
+  },
+  "engines": {
+    "node": "18.x"
   }
 }

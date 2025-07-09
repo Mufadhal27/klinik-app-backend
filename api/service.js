@@ -2,46 +2,59 @@ const dbConnect = require("../utils/dbConnect");
 const Service = require("../models/Service");
 
 module.exports = async function handler(req, res) {
-  await dbConnect();
+  try {
+    await dbConnect();
+  } catch (error) {
+    return res.status(500).json({ error: "Gagal koneksi database." });
+  }
 
   const method = req.method;
 
-  if (method === "GET") {
-    try {
-      const services = await Service.find();
-      return res.status(200).json(services);
-    } catch (err) {
-      return res.status(500).json({ error: "Gagal mengambil layanan" });
-    }
-  }
+  switch (method) {
+    case "GET":
+      try {
+        const services = await Service.find();
+        return res.status(200).json(services);
+      } catch (err) {
+        return res.status(500).json({ error: "Gagal mengambil layanan." });
+      }
 
-  if (method === "POST") {
-    try {
-      const newService = new Service(req.body);
-      await newService.save();
-      return res.status(201).json(newService);
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
-  }
+    case "POST":
+      try {
+        if (!req.body || Object.keys(req.body).length === 0) {
+          return res.status(400).json({ error: "Data layanan tidak boleh kosong." });
+        }
 
-  if (method === "PUT") {
-    try {
-      const updated = await Service.findByIdAndUpdate(req.query.id, req.body, { new: true });
-      return res.status(200).json(updated);
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
-  }
+        const newService = new Service(req.body);
+        await newService.save();
+        return res.status(201).json(newService);
+      } catch (err) {
+        return res.status(400).json({ error: err.message });
+      }
 
-  if (method === "DELETE") {
-    try {
-      await Service.findByIdAndDelete(req.query.id);
-      return res.status(200).json({ message: "Layanan berhasil dihapus." });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
-  }
+    case "PUT":
+      try {
+        const { id } = req.query;
+        if (!id) return res.status(400).json({ error: "ID layanan diperlukan." });
 
-  return res.status(405).json({ message: "Method tidak diizinkan." });
+        const updated = await Service.findByIdAndUpdate(id, req.body, { new: true });
+        return res.status(200).json(updated);
+      } catch (err) {
+        return res.status(400).json({ error: err.message });
+      }
+
+    case "DELETE":
+      try {
+        const { id } = req.query;
+        if (!id) return res.status(400).json({ error: "ID layanan diperlukan." });
+
+        await Service.findByIdAndDelete(id);
+        return res.status(200).json({ message: "Layanan berhasil dihapus." });
+      } catch (err) {
+        return res.status(400).json({ error: err.message });
+      }
+
+    default:
+      return res.status(405).json({ error: "Method tidak diizinkan." });
+  }
 };

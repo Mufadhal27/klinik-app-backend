@@ -14,7 +14,7 @@ const bookingSchema = new mongoose.Schema({
     required: true,
   },
   jam: {
-    type: String, 
+    type: String,
     required: true,
   },
   catatan: {
@@ -25,4 +25,4 @@ const bookingSchema = new mongoose.Schema({
   timestamps: true
 });
 
-module.exports = mongoose.model("Booking", bookingSchema);
+module.exports = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
