@@ -1,26 +1,16 @@
 {
-  "name": "backend",
+  "name": "klinik-backend-vercel",
   "version": "1.0.0",
-  "description": "Backend API for Klinik App",
-  "main": "server.js",
-  "private": true,
+  "description": "Backend klinik dengan API untuk layanan, booking, dan Gemini chatbot. Deploy ke Vercel.",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node api/service.js"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "4.18.2",
-    "marked": "^16.0.0",
-    "mongoose": "5.13.22",
-    "node-fetch": "2.6.7"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@google/generative-ai": "^0.7.0",
+    "mongoose": "^7.6.0"
   }
 }
