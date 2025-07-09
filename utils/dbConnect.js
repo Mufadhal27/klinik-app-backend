@@ -4,7 +4,6 @@ let isConnected;
 
 const dbConnect = async () => {
   if (isConnected) {
-    console.log("🔁 Sudah terhubung ke MongoDB");
     return;
   }
 
@@ -13,12 +12,10 @@ const dbConnect = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-
     isConnected = conn.connections[0].readyState;
-    console.log("✅ Terhubung ke MongoDB");
   } catch (error) {
-    console.error("❌ Gagal konek MongoDB:", error);
-    throw error;
+    console.error("❌ Gagal konek MongoDB:", error.message);
+    throw new Error("Gagal koneksi database.");
   }
 };
 
