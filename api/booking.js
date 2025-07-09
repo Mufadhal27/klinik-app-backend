@@ -1,36 +1,24 @@
 const dbConnect = require("../utils/dbConnect");
 const Booking = require("../models/Booking");
 
-module.exports = async (req, res) => {
-  await dbConnect();
+module.exports = async function handler(req, res) {
+  await dbconnect();
 
-  const { method, query, body } = req;
+  if (req.method === "POST") {
+    try {
+      const { nama, layanan, tanggal, jam, catatan } = req.body;
 
-  try {
-    if (method === "GET") {
-      const bookings = await Booking.find().sort({ createdAt: -1 });
-      return res.status(200).json(bookings);
+      if (!nama || !layanan || !tanggal || !jam) {
+        return res.status(400).json({ error: "Data tidak lengkap" });
+      }
+
+      const booking = await Booking.create({ nama, layanan, tanggal, jam, catatan });
+      return res.status(201).json(booking);
+    } catch (error) {
+      console.error("❌ Error create booking:", error);
+      return res.status(500).json({ error: "Gagal membuat booking" });
     }
-
-    if (method === "POST") {
-      const booking = new Booking(body);
-      await booking.save();
-      return res.status(201).json({ message: "Booking berhasil!", booking });
-    }
-
-    if (method === "PUT") {
-      const updated = await Booking.findByIdAndUpdate(query.id, body, { new: true });
-      return res.status(200).json(updated);
-    }
-
-    if (method === "DELETE") {
-      await Booking.findByIdAndDelete(query.id);
-      return res.status(200).json({ message: "Booking berhasil dihapus." });
-    }
-
-    return res.status(405).json({ message: "Method tidak diizinkan." });
-  } catch (err) {
-    console.error("❌ Booking Error:", err.message);
-    return res.status(500).json({ error: err.message });
   }
+
+  return res.status(405).json({ error: "Method tidak diizinkan" });
 };

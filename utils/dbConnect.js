@@ -1,22 +1,24 @@
 const mongoose = require("mongoose");
+const dotenv = require("dotenv");
 
-let isConnected;
+dotenv.config();
 
-const dbConnect = async () => {
-  if (isConnected) return;
+const MONGODB_URI = process.env.MONGODB_URI;
 
+if (!MONGODB_URI) {
+  throw new Error("❌ MONGODB_URI belum disetel di environment");
+}
+
+const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
-    isConnected = conn.connections[0].readyState;
-    console.log("✅ MongoDB connected");
-  } catch (err) {
-    console.error("❌ MongoDB connection error:", err);
-    throw new Error("Gagal koneksi MongoDB");
+    await mongoose.connect(MONGODB_URI);
+    console.log("✅ MongoDB Connected");
+  } catch (error) {
+    console.error("❌ Gagal koneksi MongoDB:", error);
+    process.exit(1);
   }
 };
 
-module.exports = dbConnect;
+connectDB();
+
+module.exports = mongoose;
