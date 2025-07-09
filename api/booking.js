@@ -12,51 +12,38 @@ module.exports = async function handler(req, res) {
 
   try {
     await dbConnect();
-  } catch (error) {
-    return res.status(500).json({ error: "Gagal koneksi database." });
+  } catch (err) {
+    return res.status(500).json({ error: "❌ Gagal koneksi database." });
   }
 
-  const method = req.method;
+  const { method, query, body } = req;
 
-  switch (method) {
-    case "POST":
-      const { nama, layanan, tanggal, jam, catatan } = req.body || {};
+  try {
+    switch (method) {
+      case "GET":
+        const allBookings = await Booking.find();
+        return res.status(200).json(allBookings);
 
-      if (!nama || !layanan || !tanggal || !jam) {
-        return res.status(400).json({ error: "Semua field wajib diisi." });
-      }
+      case "POST":
+        const { nama, layanan, tanggal, jam, catatan } = body || {};
+        if (!nama || !layanan || !tanggal || !jam) {
+          return res.status(400).json({ error: "❌ Semua field wajib diisi." });
+        }
+        const created = await new Booking({ nama, layanan, tanggal, jam, catatan }).save();
+        return res.status(201).json({ message: "✅ Booking berhasil dibuat." });
 
-      try {
-        const newBooking = new Booking({ nama, layanan, tanggal, jam, catatan });
-        await newBooking.save();
-        return res.status(201).json({ message: "Booking berhasil dibuat." });
-      } catch (error) {
-        return res.status(500).json({ error: "Gagal menyimpan booking." });
-      }
+      case "DELETE":
+        if (!query.id) {
+          return res.status(400).json({ error: "❌ ID booking harus disediakan." });
+        }
+        await Booking.findByIdAndDelete(query.id);
+        return res.status(200).json({ message: "✅ Booking berhasil dihapus." });
 
-    case "GET":
-      try {
-        const all = await Booking.find();
-        return res.status(200).json(all);
-      } catch (error) {
-        return res.status(500).json({ error: "Gagal mengambil data booking." });
-      }
-
-    case "DELETE":
-      const { id } = req.query;
-
-      if (!id) {
-        return res.status(400).json({ error: "ID booking harus disediakan." });
-      }
-
-      try {
-        await Booking.findByIdAndDelete(id);
-        return res.status(200).json({ message: "Booking berhasil dihapus." });
-      } catch (error) {
-        return res.status(500).json({ error: "Gagal menghapus booking." });
-      }
-
-    default:
-      return res.status(405).json({ error: "Method tidak diizinkan." });
+      default:
+        return res.status(405).json({ error: "❌ Method tidak diizinkan." });
+    }
+  } catch (err) {
+    console.error("❌ Error Booking:", err.message);
+    return res.status(500).json({ error: "❌ Terjadi kesalahan saat memproses permintaan." });
   }
 };

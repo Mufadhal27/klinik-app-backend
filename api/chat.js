@@ -4,14 +4,14 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// Fungsi untuk parse body request di Vercel
+// Fungsi untuk parse body di Vercel (karena req.body nggak langsung bisa dipakai)
 async function parseBody(req) {
   return new Promise((resolve, reject) => {
-    let body = '';
-    req.on('data', chunk => {
+    let body = "";
+    req.on("data", chunk => {
       body += chunk.toString();
     });
-    req.on('end', () => {
+    req.on("end", () => {
       try {
         resolve(JSON.parse(body));
       } catch (err) {
@@ -42,13 +42,11 @@ module.exports = async function handler(req, res) {
       return res.status(400).json({ error: "Prompt tidak valid." });
     }
 
-    const text = prompt.toLowerCase();
     const forbiddenWords = [
       "game", "film", "anime", "politik", "presiden", "pacar", "artis", "musik"
     ];
 
-    const containsForbidden = forbiddenWords.some(word => text.includes(word));
-    if (containsForbidden) {
+    if (forbiddenWords.some(word => prompt.toLowerCase().includes(word))) {
       return res.status(403).json({
         response: "❌ Maaf, saya hanya bisa menjawab hal-hal seputar kesehatan."
       });
@@ -65,9 +63,9 @@ module.exports = async function handler(req, res) {
     const response = await result.response;
     const plainText = await response.text();
 
-    res.status(200).json({ response: plainText.trim() });
+    return res.status(200).json({ response: plainText.trim() });
   } catch (err) {
     console.error("❌ Error Gemini:", err);
-    res.status(500).json({ error: "Gagal memproses permintaan." });
+    return res.status(500).json({ error: "Gagal memproses permintaan." });
   }
 };
