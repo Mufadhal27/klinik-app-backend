@@ -1,17 +1,12 @@
 const dbConnect = require("../utils/dbConnect");
 const Service = require("../models/Service");
 
-module.exports = async (req, res) => {
+module.exports = async function handler(req, res) {
   await dbConnect();
-  const { method } = req;
 
-  if (method === "GET") {
-    try {
-      const services = await Service.find();
-      return res.status(200).json(services);
-    } catch (err) {
-      return res.status(500).json({ error: err.message });
-    }
+  if (req.method === "GET") {
+    const services = await Service.find();
+    return res.status(200).json(services);
   }
 
   if (method === "POST") {

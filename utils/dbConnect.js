@@ -1,24 +1,28 @@
 const mongoose = require("mongoose");
-const dotenv = require("dotenv");
 
-dotenv.config();
+const MONGO_URI = process.env.MONGO_URI;
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error("❌ MONGODB_URI belum disetel di environment");
+if (!MONGO_URI) {
+  throw new Error("❌ MONGO_URI belum disetel di environment");
 }
 
-const connectDB = async () => {
+let isConnected = false;
+
+async function dbConnect() {
+  if (isConnected) return;
+
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log("✅ MongoDB Connected");
+    const db = await mongoose.connect(MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    isConnected = db.connections[0].readyState === 1;
+    console.log("✅ MongoDB connected (Vercel)");
   } catch (error) {
-    console.error("❌ Gagal koneksi MongoDB:", error);
-    process.exit(1);
+    console.error("❌ MongoDB connection error:", error);
+    throw error;
   }
-};
+}
 
-connectDB();
-
-module.exports = mongoose;
+module.exports = dbConnect;
