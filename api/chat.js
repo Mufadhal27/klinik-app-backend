@@ -4,7 +4,6 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// Fungsi untuk parse body di Vercel (karena req.body nggak langsung bisa dipakai)
 async function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = "";
@@ -22,9 +21,18 @@ async function parseBody(req) {
 }
 
 module.exports = async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "https://klinik-app-frontend.vercel.app"); 
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS"); 
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type"); 
+  const allowedOrigins = [
+    "https://klinik-app-frontend.vercel.app",
+  ];
+  const origin = req.headers.origin;
+  const isVercelPreviewOrigin = origin && origin.endsWith("-mufadhals-projects.vercel.app");
+
+  if (allowedOrigins.includes(origin) || isVercelPreviewOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+  }
+
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
