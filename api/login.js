@@ -1,12 +1,12 @@
 const dbConnect = require("../utils/dbConnect");
 const User = require("../models/User");
-const bcrypt = require("bcryptjs"); // Untuk membandingkan password
-const jwt = require("jsonwebtoken"); // Untuk membuat JWT
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 module.exports = async function handler(req, res) {
     // CORS Configuration
     const allowedOrigins = [
-        "https://klinik-app-frontend.vercel.app",
+        "https://klinik-app-frontend.vercel.app", // GANTI DENGAN URL PRODUKSI UTAMA FRONTEND ANDA
     ];
     const origin = req.headers.origin;
     const isVercelPreviewOrigin = origin && origin.endsWith("-mufadhals-projects.vercel.app");
@@ -16,7 +16,7 @@ module.exports = async function handler(req, res) {
     }
 
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Tambahkan Authorization untuk header nanti
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
     if (req.method === "OPTIONS") {
         return res.status(200).end();
@@ -43,35 +43,37 @@ module.exports = async function handler(req, res) {
             // Find User by Email
             const user = await User.findOne({ email });
             if (!user) {
-                return res.status(400).json({ error: "Kredensial tidak valid (email)." }); // Jangan spesifik ke email/pass untuk keamanan
+                return res.status(400).json({ error: "Kredensial tidak valid." }); // Pesan umum untuk keamanan
             }
 
             // Compare Password
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(400).json({ error: "Kredensial tidak valid (password)." }); // Jangan spesifik ke email/pass untuk keamanan
+                return res.status(400).json({ error: "Kredensial tidak valid." }); // Pesan umum untuk keamanan
             }
 
             // Generate JWT Token
             const payload = {
                 user: {
-                    id: user.id, // ID pengguna dari MongoDB
-                    role: user.role // Sertakan role untuk otorisasi nanti
+                    id: user.id,
+                    username: user.username, 
+                    email: user.email,
+                    role: user.role
                 }
             };
 
-            // Mengatur masa berlaku token
+            // Token Expiration
             const token = jwt.sign(
                 payload,
-                process.env.JWT_SECRET, // Kunci rahasia dari Environment Variable
-                { expiresIn: '30m' } // Token akan kadaluarsa dalam 30 menit
+                process.env.JWT_SECRET,
+                { expiresIn: '30m' }
             );
 
             // Success Response with Token
             return res.status(200).json({ token });
 
         } catch (error) {
-            console.error("❌ Error saat login:", error.message);
+            console.error("❌ Error during login:", error.message);
             return res.status(500).json({ error: "Terjadi kesalahan saat login." });
         }
     } else {
