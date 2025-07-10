@@ -1,28 +1,45 @@
+// backend/models/Booking.js
 const mongoose = require("mongoose");
 
 const bookingSchema = new mongoose.Schema({
-  nama: {
+  userId: { // Tambahkan field userId
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'User', 
+  },
+  serviceName: { 
     type: String,
     required: true,
   },
-  layanan: {
+  bookingDate: { 
+    type: Date,
+    required: true,
+  },
+  bookingTime: { 
+    type: String, 
+    required: true,
+  },
+  userName: { 
     type: String,
     required: true,
   },
-  tanggal: {
+  userEmail: { 
     type: String,
     required: true,
   },
-  jam: {
+  userPhone: { 
     type: String,
     required: true,
   },
-  catatan: {
+  notes: { 
     type: String,
     default: "",
   },
 }, {
   timestamps: true
 });
+
+// Tambahkan index untuk pencarian cepat berdasarkan tanggal dan waktu
+bookingSchema.index({ bookingDate: 1, bookingTime: 1 });
 
 module.exports = mongoose.models.Booking || mongoose.model("Booking", bookingSchema);
