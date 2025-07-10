@@ -1,5 +1,5 @@
-const dbConnect = require("../utils/dbConnect");
-const Booking = require("../models/Booking");
+const dbConnect = require("../../utils/dbConnect");
+const Booking = require("../../models/Booking");
 const protect = require('../../middleware/protect'); 
 const moment = require('moment'); 
 
