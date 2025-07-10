@@ -2,14 +2,19 @@
   "name": "klinik-backend-vercel",
   "version": "1.0.0",
   "description": "Backend klinik dengan API untuk layanan, booking, dan chatbot Gemini. Siap untuk deploy ke Vercel.",
-  "scripts": {},
+  "scripts": {
+    "start": "echo 'Vercel secara otomatis mengelola API Routes di folder /api' && exit 0",
+    "build": "echo 'Tidak perlu langkah build kustom untuk Vercel API Routes' && exit 0"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@google/generative-ai": "^0.7.0",
-    "dotenv": "^17.1.0",
-    "mongoose": "^7.6.0"
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "mongoose": "^7.8.7"
   },
   "engines": {
     "node": "18.x"
