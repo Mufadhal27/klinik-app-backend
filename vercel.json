@@ -2,9 +2,38 @@
   "version": 2,
   "builds": [
     {
-      "src": "api/**/*.js", 
+      "src": "api/**/*.js",
       "use": "@vercel/node"
     }
+  ],
+  "routes": [
+    {
+      "src": "/api/booking/availability",
+      "dest": "api/booking/availability.js"
+    },
+    {
+      "src": "/api/booking/my-bookings",
+      "dest": "api/booking/my-bookings.js"
+    },
+    {
+      "src": "/api/booking",
+      "dest": "api/booking/index.js"
+    },
+    {
+      "src": "/api/chat",
+      "dest": "api/chat.js"
+    },
+    {
+      "src": "/api/login",
+      "dest": "api/login.js"
+    },
+    {
+      "src": "/api/register",
+      "dest": "api/register.js"
+    },
+    {
+      "src": "/api/service",
+      "dest": "api/service.js"
+    }
   ]
- 
 }
