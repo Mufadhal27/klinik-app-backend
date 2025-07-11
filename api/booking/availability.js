@@ -3,14 +3,18 @@ const Booking = require("../../models/Booking");
 const moment = require("moment");
 
 module.exports = async function handler(req, res) {
-  const allowedOrigins = ["https://klinik-app-frontend.vercel.app"];
+  const allowedOrigins = [
+    "https://klinik-app-frontend.vercel.app",
+    "https://klinik-app-frontend.vercel.app/",
+  ];
   const origin = req.headers.origin;
-  const isPreview = origin && origin.endsWith("-mufadhals-projects.vercel.app");
-  if (allowedOrigins.includes(origin) || isPreview) {
+  if (allowedOrigins.includes(origin) || (origin && origin.endsWith("-mufadhals-projects.vercel.app"))) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
-  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
+
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
   if (req.method === "OPTIONS") return res.status(200).end();
 
   if (req.method !== "GET") {
@@ -29,14 +33,16 @@ module.exports = async function handler(req, res) {
     if (!date) return res.status(400).json({ error: "❌ Parameter 'date' diperlukan." });
 
     const dateMoment = moment(date, "YYYY-MM-DD", true);
-    if (!dateMoment.isValid())
-      return res.status(400).json({ error: "❌ Format tanggal tidak valid. Gunakan YYYY-MM-DD." });
+    if (!dateMoment.isValid()) {
+      return res.status(400).json({
+        error: "❌ Format tanggal tidak valid. Gunakan YYYY-MM-DD.",
+      });
+    }
 
     const query = { bookingDate: new Date(dateMoment.format("YYYY-MM-DD")) };
     if (serviceName) query.serviceName = serviceName;
 
     const bookings = await Booking.find(query).select("bookingTime");
-
     const bookedTimes = bookings.map((b) =>
       moment(b.bookingTime, "HH:mm").format("HH:mm")
     );
