@@ -4,9 +4,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
 module.exports = async function handler(req, res) {
-    // CORS Configuration
+    // ✅ Full CORS Configuration
     const allowedOrigins = [
-        "https://klinik-app-frontend.vercel.app", // GANTI DENGAN URL PRODUKSI UTAMA FRONTEND ANDA
+        "https://klinik-app-frontend.vercel.app", // GANTI dengan frontend production kamu
     ];
     const origin = req.headers.origin;
     const isVercelPreviewOrigin = origin && origin.endsWith("-mufadhals-projects.vercel.app");
@@ -15,15 +15,15 @@ module.exports = async function handler(req, res) {
         res.setHeader("Access-Control-Allow-Origin", origin);
     }
 
-    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
 
     if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
-    // End CORS Configuration
 
-    // Database Connection
+    // Koneksi Database
     try {
         await dbConnect();
     } catch (err) {
@@ -35,41 +35,31 @@ module.exports = async function handler(req, res) {
         try {
             const { email, password } = req.body;
 
-            // Input Validation
             if (!email || !password) {
                 return res.status(400).json({ error: "Email dan password harus diisi." });
             }
 
-            // Find User by Email
             const user = await User.findOne({ email });
             if (!user) {
-                return res.status(400).json({ error: "Kredensial tidak valid." }); // Pesan umum untuk keamanan
+                return res.status(400).json({ error: "Kredensial tidak valid." });
             }
 
-            // Compare Password
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) {
-                return res.status(400).json({ error: "Kredensial tidak valid." }); // Pesan umum untuk keamanan
+                return res.status(400).json({ error: "Kredensial tidak valid." });
             }
 
-            // Generate JWT Token
             const payload = {
                 user: {
                     id: user.id,
-                    username: user.username, 
+                    username: user.username,
                     email: user.email,
-                    role: user.role
-                }
+                    role: user.role,
+                },
             };
 
-            // Token Expiration
-            const token = jwt.sign(
-                payload,
-                process.env.JWT_SECRET,
-                { expiresIn: '30m' }
-            );
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "30m" });
 
-            // Success Response with Token
             return res.status(200).json({ token });
 
         } catch (error) {
@@ -77,8 +67,7 @@ module.exports = async function handler(req, res) {
             return res.status(500).json({ error: "Terjadi kesalahan saat login." });
         }
     } else {
-        // Method Not Allowed
-        res.setHeader('Allow', ['POST', 'OPTIONS']);
+        res.setHeader("Allow", ["POST", "OPTIONS"]);
         return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 };
